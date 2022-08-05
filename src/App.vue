@@ -7,10 +7,10 @@
           <div class="expand"></div>
           <div>
             <a target="_blank" href="https://twitter.com/ericet369"><i class="fa fa-twitter" aria-hidden="true"></i></a>
-            <a href="https://github.com/ericet/distribute" target="_blank"><i class="fa fa-github"
+            <a href="https://github.com/ericet/Ens-Registration-Vue" target="_blank"><i class="fa fa-github"
                 aria-hidden="true"></i>
             </a>
-            <a href="https://www.mintscan.io/cosmos/account/cosmos1q23hjqp3fv3v2fjxp3zvknelx53qfc4v6uzq6w"
+            <a href="https://etherscan.io/address/0x434DCffCF7dABd48B284860C27ebd184C91341F5"
               target="_blank"><i class="fa fa-coffee" aria-hidden="true"></i></a>
           </div>
         </header>
@@ -83,8 +83,8 @@ import ABI from "./ABI/controller.json";
 import { ethers } from "ethers";
 import LoadingButton from "@/components/LoadingButton";
 const CONTRACT = "0x283Af0B28c62C092C9727F1Ee09c02CA627EB7F5";
-// const RESOLVER = '0x4976fb03C32e5B8cfe2b6cCB31c09Ba78EBaBa41'; //mainnet
-const RESOLVER = "0xf6305c19e814d2a75429Fd637d01F7ee0E77d615"; //Rinkeby
+const RESOLVER = '0x4976fb03C32e5B8cfe2b6cCB31c09Ba78EBaBa41'; //mainnet
+// const RESOLVER = "0xf6305c19e814d2a75429Fd637d01F7ee0E77d615"; //Rinkeby
 export default {
   name: "App",
   components: {
@@ -93,7 +93,7 @@ export default {
   data() {
     return {
       provider: null,
-      chainId: 4,
+      chainId: 1,
       account: null,
       input: "",
       name: "",
@@ -129,7 +129,7 @@ export default {
           method: "wallet_switchEthereumChain",
           params: [
             {
-              chainId: "0x4",
+              chainId: "0x1",
             },
           ],
         })
@@ -183,7 +183,7 @@ export default {
             this.isLoading = false;
             this.committed = true;
             this.registered = false;
-          }, 30 * 1000);
+          }, 60 * 1000);
           console.log(`${this.account} commitment made`);
         })
         .catch((err) => {
@@ -226,7 +226,7 @@ export default {
         const contract = new ethers.Contract(CONTRACT, ABI, this.provider);
         this.price = (
           ((await contract.rentPrice(this.name, this.days * 24 * 60 * 60)) *
-            1.1) /
+            1.2) /
           1e18
         ).toFixed(6);
       }
