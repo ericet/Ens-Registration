@@ -1,68 +1,81 @@
 <template>
-  <div id="app">
-    <div class="container">
-      <div class="the_title">
-        <h1>ENS Name Registration</h1>
+  <article>
+    <section>
+      <div class="distribute-logo" state="4">
+        <header>
+          <h1>ENS Registration</h1>
+          <div class="expand"></div>
+          <div>
+            <a target="_blank" href="https://twitter.com/ericet369"><i class="fa fa-twitter" aria-hidden="true"></i></a>
+            <a href="https://github.com/ericet/distribute" target="_blank"><i class="fa fa-github"
+                aria-hidden="true"></i>
+            </a>
+            <a href="https://www.mintscan.io/cosmos/account/cosmos1q23hjqp3fv3v2fjxp3zvknelx53qfc4v6uzq6w"
+              target="_blank"><i class="fa fa-coffee" aria-hidden="true"></i></a>
+          </div>
+        </header>
+        <p>
+          <span style="font-style: normal">
+            Register ENS Name for a short period of time</span>
+        </p>
       </div>
-      <button id="button" class="bubbly-button" @click="switchNetwork()">
+    </section>
+    <section>
+
+      <button id="button" class="btn btn-info" @click="switchNetwork()">
         <div v-if="!account">Connect Wallet</div>
         <div v-else>
           {{ account }}
         </div>
       </button>
-      <p>Enter a ENS Name</p>
-      <div class="operation">
-        <input v-model="input" />
-        <button id="search" class="bubbly-button" @click="checkAvailability()">
-          Search
-        </button>
+    </section>
+
+    <section>
+      <div class="row">
+        <div class="container-fluid">
+          <form class="card card-sm" @submit.prevent="checkAvailability()">
+            <div class="card-body row no-gutters align-items-center">
+              <!--end of col-->
+              <div class="col">
+                <input class="form-control form-control-lg form-control-borderless" v-model="input"
+                  placeholder="Enter an ENS Name">
+              </div>
+              <div class="col-auto">
+                <button class="btn btn-lg btn-success" type="submit">Search</button>
+              </div>
+            </div>
+          </form>
+        </div>
       </div>
+       <br/>
       <div v-if="searched">
         <div v-if="isAvailable">
-          <div class="alert alert-primary" role="alert">
+          <div class="alert alert-success" role="alert">
             <b>{{ name }}.eth</b> is available!
           </div>
           <div class="card">
             <div class="card-header">
               <div class="input-group flex-nowrap">
-                <input
-                  type="number"
-                  class="form-control"
-                  value="30"
-                  @input="getInput($event)"
-                />
+                <input type="number" class="form-control" value="30" min="1" @input="getInput($event)" />
                 <span class="input-group-text">DAYS</span>
               </div>
             </div>
             <div class="card-body">
-              <h5 class="card-title">{{ name }}.eth</h5>
-              <p class="card-text">{{ price }} ETH for {{ days }} Days</p>
-              <LoadingButton
-                :register="register"
-                :commit="commit"
-                :isLoading="isLoading"
-                :committed="committed"
-                :registered="registered"
-                :name="name"
-              ></LoadingButton>
+              <h2 class="card-title text-center">{{ name }}.eth</h2>
+              <hr class="mt-2 mb-3"/>
+              <h3 class="card-text text-center">{{ price }} ETH for {{ days }} Days</h3>
+              <LoadingButton :register="register" :commit="commit" :isLoading="isLoading" :committed="committed"
+                :registered="registered" :name="name"></LoadingButton>
             </div>
           </div>
         </div>
+       
         <div v-else class="alert alert-danger" role="alert">
           {{ name }}.eth is NOT available!
         </div>
       </div>
-
-      <div id="transaction"></div>
-    </div>
-    <footer class="blog-footer">
-      <p class="text-center">
-        Brought to you by
-        <a href="https://twitter.com/ericet369">@ericet369</a>.<br />
-        Donations: 0x434DCffCF7dABd48B284860C27ebd184C91341F5
-      </p>
-    </footer>
-  </div>
+    </section>
+  </article>
 </template>
 
 <script>
@@ -230,12 +243,125 @@ export default {
 </script>
 
 <style>
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
+body {
+  width: 87.5%;
+  margin-left: auto;
+  margin-right: auto;
+  font-family: et-book, Palatino, 'Palatino Linotype', 'Palatino LT STD',
+    'Book Antiqua', Georgia, serif;
+  background-color: #fffff8;
+  color: #111;
+  max-width: 1400px;
+  counter-reset: sidenote-counter;
+}
+
+article {
+  margin: auto;
+  max-width: 600px;
+  position: relative;
+  padding: 5rem 0rem;
+  display: block;
+}
+
+section {
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+  display: block;
+}
+
+.distribute-logo header {
+  display: flex;
+  align-items: baseline;
+}
+
+.distribute-logo a {
+  font-size: 1.4rem;
+  margin-right: 0.4rem;
+}
+
+.distribute-transaction {
+  display: flex;
+  align-items: baseline;
+  margin-bottom: 1.4rem;
+}
+
+.distribute-transaction .status {
+  margin-left: 1.4rem;
+  font-style: italic;
+}
+
+.cosmos {
+  display: inline-block;
+  position: relative;
+  margin-left: -50px;
+  bottom: 40px;
+}
+
+h1 {
+  font-weight: 400;
+  margin-top: 4rem;
+  margin-bottom: 1.5rem;
+  font-size: 3.2rem;
+  line-height: 1;
+}
+
+.expand {
+  flex-grow: 1;
+}
+
+div {
+  display: block;
+}
+
+button[type='submit'] {
+  border: none;
+  font-style: italic;
+  padding: 0.7rem;
+  background: aquamarine;
+  box-shadow: 6px 6px crimson;
+  color: #111;
+}
+
+.btn-primary {
+  background-color: aquamarine !important;
+  border-color: aquamarine !important;
+  color: #111;
+  float:right
+}
+
+.btn-secondary {
+  float:right
+}
+
+.btn-success {
+  background-color: aquamarine !important;
+  border-color: aquamarine !important;
+  color: #111;
+  float:right
+}
+
+textarea.form-control {
+  display: block;
+  border: none;
+  border-bottom: 2px #111111 solid;
+  background: aquamarine;
+  padding: 0.7rem;
+  width: 100%;
+  position: relative;
+  height: 8.4rem;
+  resize: none;
+  margin-bottom: 1.4rem;
+}
+
+.form-control-borderless {
+  border: none;
+}
+
+.form-control-borderless:hover,
+.form-control-borderless:active,
+.form-control-borderless:focus {
+  border: none;
+  outline: none;
+  box-shadow: none;
 }
 </style>

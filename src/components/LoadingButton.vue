@@ -1,12 +1,12 @@
 <template>
   <div>
     <div v-if="!isLoading && !committed && !registered">
-      <button type="button" @click="commit" class="btn btn-primary">
+      <button type="button" @click="commit" class="btn btn-lg btn-primary mb-3">
         Commit
       </button>
     </div>
     <div v-else-if="isLoading && !committed && !registered">
-      <button class="btn btn-secondary" type="button" disabled>
+      <button class="btn btn-lg btn-secondary" type="button" disabled>
         <span
           class="spinner-grow spinner-grow-sm"
           role="status"
@@ -16,7 +16,7 @@
       </button>
     </div>
     <div v-else-if="!isLoading && committed && !registered">
-      <button type="button" @click="register()" class="btn btn-success">
+      <button type="button" @click="register()" class="btn btn-lg btn-success">
         Register
       </button>
     </div>
