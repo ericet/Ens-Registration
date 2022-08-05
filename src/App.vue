@@ -12,7 +12,7 @@
       </button>
       <p>Enter a ENS Name</p>
       <div class="operation">
-        <input v-model="name" />
+        <input v-model="input" />
         <button id="search" class="bubbly-button" @click="checkAvailability()">
           Search
         </button>
@@ -66,14 +66,14 @@
 </template>
 
 <script>
-import ABI from './ABI/controller.json';
-import { ethers } from 'ethers';
-import LoadingButton from '@/components/LoadingButton';
-const CONTRACT = '0x283Af0B28c62C092C9727F1Ee09c02CA627EB7F5';
+import ABI from "./ABI/controller.json";
+import { ethers } from "ethers";
+import LoadingButton from "@/components/LoadingButton";
+const CONTRACT = "0x283Af0B28c62C092C9727F1Ee09c02CA627EB7F5";
 // const RESOLVER = '0x4976fb03C32e5B8cfe2b6cCB31c09Ba78EBaBa41'; //mainnet
-const RESOLVER = '0xf6305c19e814d2a75429Fd637d01F7ee0E77d615'; //Rinkeby
+const RESOLVER = "0xf6305c19e814d2a75429Fd637d01F7ee0E77d615"; //Rinkeby
 export default {
-  name: 'App',
+  name: "App",
   components: {
     LoadingButton,
   },
@@ -82,7 +82,8 @@ export default {
       provider: null,
       chainId: 4,
       account: null,
-      name: '',
+      input: "",
+      name: "",
       price: 0,
       days: 30,
       isAvailable: false,
@@ -103,44 +104,46 @@ export default {
         return this.failedConnectWallet();
       }
       this.provider = new ethers.providers.Web3Provider(window.ethereum);
-      const accounts = await this.provider.send('eth_requestAccounts');
+      const accounts = await this.provider.send("eth_requestAccounts");
       this.account = accounts[0];
     },
     failedConnectWallet() {
-      this.account = 'Error Network, switch to Mainnet';
+      this.account = "Error Network, switch to Mainnet";
     },
     switchNetwork() {
       window?.ethereum
         ?.request({
-          method: 'wallet_addEthereumChain',
+          method: "wallet_switchEthereumChain",
           params: [
             {
-              chainId: '0x4',
-              chainName: 'Rinkeby Testnet',
-              nativeCurrency: {
-                name: 'ETH',
-                symbol: 'ETH',
-                decimals: 18,
-              },
-              rpcUrls: ['https://rpc.ankr.com/eth_rinkeby	'],
-              blockExplorerUrls: ['https://rinkeby.etherscan.io/'],
+              chainId: "0x4",
             },
           ],
         })
         .then(() => {
-          console.log('connect');
+          console.log("connect");
           this.connectWallet();
         })
         .catch(() => {
-          console.log('failed');
+          console.log("failed");
           this.failedConnectWallet();
         });
     },
     async checkAvailability() {
+      this.reset();
       const contract = new ethers.Contract(CONTRACT, ABI, this.provider);
+      this.name = this.input;
       this.isAvailable = await contract.available(this.name);
       this.getRentPrice();
       this.searched = true;
+    },
+    reset() {
+      this.isAvailable = false;
+      this.isLoading = false;
+      this.committed = false;
+      this.registered = false;
+      this.secret = null;
+      this.searched = false;
     },
     async commit() {
       this.secret = this.randomSecret();
@@ -210,7 +213,7 @@ export default {
         const contract = new ethers.Contract(CONTRACT, ABI, this.provider);
         this.price = (
           ((await contract.rentPrice(this.name, this.days * 24 * 60 * 60)) *
-            2) /
+            1.1) /
           1e18
         ).toFixed(6);
       }
