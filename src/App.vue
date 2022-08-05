@@ -145,7 +145,7 @@ export default {
     async checkAvailability() {
       this.reset();
       const contract = new ethers.Contract(CONTRACT, ABI, this.provider);
-      this.name = this.input;
+      this.name = this.input.toLowerCase();
       this.isAvailable = await contract.available(this.name);
       this.getRentPrice();
       this.searched = true;
