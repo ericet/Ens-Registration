@@ -7,7 +7,7 @@
           <div class="expand"></div>
           <div>
             <a target="_blank" href="https://twitter.com/ericet369"><i class="fa fa-twitter" aria-hidden="true"></i></a>
-            <a href="https://github.com/ericet/Ens-Registration-Vue" target="_blank"><i class="fa fa-github"
+            <a href="https://github.com/ericet/Ens-Registration" target="_blank"><i class="fa fa-github"
                 aria-hidden="true"></i>
             </a>
             <a href="https://etherscan.io/address/0x434DCffCF7dABd48B284860C27ebd184C91341F5"
