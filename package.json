@@ -9,6 +9,7 @@
     "deploy": "npm run build && gh-pages -d dist"
   },
   "dependencies": {
+    "@ensdomains/ens-validation": "^0.1.0",
     "core-js": "^3.8.3",
     "crypto": "^1.0.1",
     "ethers": "^5.6.9",

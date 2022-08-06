@@ -10,8 +10,8 @@
             <a href="https://github.com/ericet/Ens-Registration" target="_blank"><i class="fa fa-github"
                 aria-hidden="true"></i>
             </a>
-            <a href="https://etherscan.io/address/0x434DCffCF7dABd48B284860C27ebd184C91341F5"
-              target="_blank"><i class="fa fa-coffee" aria-hidden="true"></i></a>
+            <a href="https://etherscan.io/address/0x434DCffCF7dABd48B284860C27ebd184C91341F5" target="_blank"><i
+                class="fa fa-coffee" aria-hidden="true"></i></a>
           </div>
         </header>
         <p>
@@ -33,7 +33,7 @@
     <section>
       <div class="row">
         <div class="container-fluid">
-          <form class="card card-sm" @submit.prevent="checkAvailability()">
+          <form class="card card-sm" @submit.prevent="checkName()">
             <div class="card-body row no-gutters align-items-center">
               <!--end of col-->
               <div class="col">
@@ -47,32 +47,31 @@
           </form>
         </div>
       </div>
-       <br/>
-      <div v-if="searched">
-        <div v-if="isAvailable">
-          <div class="alert alert-success" role="alert">
-            <b>{{ name }}.eth</b> is available!
-          </div>
-          <div class="card">
-            <div class="card-header">
-              <div class="input-group flex-nowrap">
-                <input type="number" class="form-control" value="30" min="1" @input="getInput($event)" />
-                <span class="input-group-text">DAYS</span>
+      <br />
+      <div v-if="!message">
+        <div v-if="searched">
+            <div class="alert alert-success" role="alert">
+              <b>{{ name }}.eth</b> is available!
+            </div>
+            <div class="card">
+              <div class="card-header">
+                <div class="input-group flex-nowrap">
+                  <input type="number" class="form-control" value="30" min="1" @input="getInput($event)" />
+                  <span class="input-group-text">DAYS</span>
+                </div>
+              </div>
+              <div class="card-body">
+                <h2 class="card-title text-center">{{ name }}.eth</h2>
+                <hr class="mt-2 mb-3" />
+                <h3 class="card-text text-center">{{ price }} ETH for {{ days }} Days</h3>
+                <LoadingButton :register="register" :commit="commit" :isLoading="isLoading" :committed="committed"
+                  :registered="registered" :name="name"></LoadingButton>
               </div>
             </div>
-            <div class="card-body">
-              <h2 class="card-title text-center">{{ name }}.eth</h2>
-              <hr class="mt-2 mb-3"/>
-              <h3 class="card-text text-center">{{ price }} ETH for {{ days }} Days</h3>
-              <LoadingButton :register="register" :commit="commit" :isLoading="isLoading" :committed="committed"
-                :registered="registered" :name="name"></LoadingButton>
-            </div>
-          </div>
         </div>
-       
-        <div v-else class="alert alert-danger" role="alert">
-          {{ name }}.eth is NOT available!
-        </div>
+      </div>
+      <div v-else class="alert alert-danger" role="alert">
+        {{ message }}
       </div>
     </section>
   </article>
@@ -81,6 +80,7 @@
 <script>
 import ABI from "./ABI/controller.json";
 import { ethers } from "ethers";
+import { validate } from '@ensdomains/ens-validation'
 import LoadingButton from "@/components/LoadingButton";
 const CONTRACT = "0x283Af0B28c62C092C9727F1Ee09c02CA627EB7F5";
 const RESOLVER = '0x4976fb03C32e5B8cfe2b6cCB31c09Ba78EBaBa41'; //mainnet
@@ -99,12 +99,12 @@ export default {
       name: "",
       price: 0,
       days: 30,
-      isAvailable: false,
       isLoading: false,
       committed: false,
       registered: false,
       secret: null,
       searched: false,
+      message: '',
     };
   },
   created: function () {
@@ -142,21 +142,13 @@ export default {
           this.failedConnectWallet();
         });
     },
-    async checkAvailability() {
-      this.reset();
-      const contract = new ethers.Contract(CONTRACT, ABI, this.provider);
-      this.name = this.input.toLowerCase();
-      this.isAvailable = await contract.available(this.name);
-      this.getRentPrice();
-      this.searched = true;
-    },
     reset() {
-      this.isAvailable = false;
       this.isLoading = false;
       this.committed = false;
       this.registered = false;
       this.secret = null;
       this.searched = false;
+      this.message = '';
     },
     async commit() {
       this.secret = this.randomSecret();
@@ -222,14 +214,12 @@ export default {
       return ethers.utils.hexlify(ethers.utils.randomBytes(32));
     },
     async getRentPrice() {
-      if (this.isAvailable) {
         const contract = new ethers.Contract(CONTRACT, ABI, this.provider);
         this.price = (
           ((await contract.rentPrice(this.name, this.days * 24 * 60 * 60)) *
             1.2) /
           1e18
         ).toFixed(6);
-      }
     },
     getInput(event) {
       let input = event.target.value;
@@ -238,6 +228,24 @@ export default {
         this.getRentPrice();
       }
     },
+    async checkName() {
+      this.reset();
+      this.name = this.input.toLowerCase();
+      let isValid = validate(this.name);
+      if (isValid) {
+        const contract = new ethers.Contract(CONTRACT, ABI, this.provider);
+        let isAvailable = await contract.available(this.name);
+        if (isAvailable) {
+          this.getRentPrice();
+          this.searched = true;
+        }else{
+          this.message = `${this.name}.eth is NOT available!`;
+        }
+
+      } else {
+        this.message = `${this.name}.eth is NOT a valid name!`;
+      }
+    }
   },
 };
 </script>
@@ -326,18 +334,18 @@ button[type='submit'] {
   background-color: aquamarine !important;
   border-color: aquamarine !important;
   color: #111;
-  float:right
+  float: right
 }
 
 .btn-secondary {
-  float:right
+  float: right
 }
 
 .btn-success {
   background-color: aquamarine !important;
   border-color: aquamarine !important;
   color: #111;
-  float:right
+  float: right
 }
 
 textarea.form-control {
