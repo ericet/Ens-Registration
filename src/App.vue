@@ -124,7 +124,7 @@ export default {
       this.provider = new ethers.providers.Web3Provider(window.ethereum);
       const accounts = await this.provider.send("eth_requestAccounts");
       this.account = accounts[0];
-      this.connectButton = accounts[0].substring(0, 6) + "..." + accounts[0].slice(-6);
+      this.connectButton = accounts[0].substring(0, 4) + "..." + accounts[0].slice(-4);
     },
     failedConnectWallet() {
       this.connectButton = "Wrong Network";
