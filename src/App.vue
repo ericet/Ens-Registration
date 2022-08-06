@@ -5,15 +5,22 @@
         <header>
           <h1>ENS Registration</h1>
           <div class="expand"></div>
-          <div>
-            <a target="_blank" href="https://twitter.com/ericet369"><i class="fa fa-twitter" aria-hidden="true"></i></a>
-            <a href="https://github.com/ericet/Ens-Registration" target="_blank"><i class="fa fa-github"
-                aria-hidden="true"></i>
-            </a>
-            <a href="https://etherscan.io/address/0x434DCffCF7dABd48B284860C27ebd184C91341F5" target="_blank"><i
-                class="fa fa-coffee" aria-hidden="true"></i></a>
-          </div>
+          <button id="button" class="btn btn-info" :class="{ 'btn btn-danger': connectButton === 'Wrong Network' }"
+            @click="switchNetwork()">
+            <div v-if="!connectButton">Connect Wallet</div>
+            <div v-else>
+              {{ connectButton }}
+            </div>
+          </button>
         </header>
+        <div>
+          <a target="_blank" href="https://twitter.com/ericet369"><i class="fa fa-twitter" aria-hidden="true"></i></a>
+          <a href="https://github.com/ericet/Ens-Registration" target="_blank"><i class="fa fa-github"
+              aria-hidden="true"></i>
+          </a>
+          <a href="https://etherscan.io/address/0x434DCffCF7dABd48B284860C27ebd184C91341F5" target="_blank"><i
+              class="fa fa-coffee" aria-hidden="true"></i></a>
+        </div>
         <p>
           <span style="font-style: normal">
             Register ENS Name for a short period of time</span>
@@ -22,12 +29,7 @@
     </section>
     <section>
 
-      <button id="button" class="btn btn-info" @click="switchNetwork()">
-        <div v-if="!account">Connect Wallet</div>
-        <div v-else>
-          {{ account }}
-        </div>
-      </button>
+
     </section>
 
     <section>
@@ -35,7 +37,9 @@
         <div class="container-fluid">
           <form class="card card-sm" @submit.prevent="checkName()">
             <div class="card-body row no-gutters align-items-center">
-              <!--end of col-->
+              <div class="col-auto">
+                <i class="fa fa-search fa-lg"></i>
+              </div>
               <div class="col">
                 <input class="form-control form-control-lg form-control-borderless" v-model="input"
                   placeholder="Enter an ENS Name">
@@ -49,25 +53,25 @@
       </div>
       <br />
       <div v-if="!message">
-        <div v-if="searched">
-            <div class="alert alert-success" role="alert">
-              <b>{{ name }}.eth</b> is available!
-            </div>
-            <div class="card">
-              <div class="card-header">
-                <div class="input-group flex-nowrap">
-                  <input type="number" class="form-control" value="30" min="1" @input="getInput($event)" />
-                  <span class="input-group-text">DAYS</span>
-                </div>
-              </div>
-              <div class="card-body">
-                <h2 class="card-title text-center">{{ name }}.eth</h2>
-                <hr class="mt-2 mb-3" />
-                <h3 class="card-text text-center">{{ price }} ETH for {{ days }} Days</h3>
-                <LoadingButton :register="register" :commit="commit" :isLoading="isLoading" :committed="committed"
-                  :registered="registered" :name="name"></LoadingButton>
+        <div v-show="searched">
+          <div class="alert alert-success" role="alert">
+            <b>{{ name }}.eth</b> is available!
+          </div>
+          <div class="card">
+            <div class="card-header">
+              <div class="input-group flex-nowrap">
+                <input type="number" class="form-control" value="30" min="1" @input="getInput($event)" />
+                <span class="input-group-text">DAYS</span>
               </div>
             </div>
+            <div class="card-body">
+              <h2 class="card-title text-center">{{ name }}.eth</h2>
+              <hr class="mt-2 mb-3" />
+              <h3 class="card-text text-center">{{ price }} ETH for {{ days }} Days</h3>
+              <LoadingButton :register="register" :commit="commit" :isLoading="isLoading" :committed="committed"
+                :registered="registered" :name="name"></LoadingButton>
+            </div>
+          </div>
         </div>
       </div>
       <div v-else class="alert alert-danger" role="alert">
@@ -83,8 +87,8 @@ import { ethers } from "ethers";
 import { validate } from '@ensdomains/ens-validation'
 import LoadingButton from "@/components/LoadingButton";
 const CONTRACT = "0x283Af0B28c62C092C9727F1Ee09c02CA627EB7F5";
-const RESOLVER = '0x4976fb03C32e5B8cfe2b6cCB31c09Ba78EBaBa41'; //mainnet
-// const RESOLVER = "0xf6305c19e814d2a75429Fd637d01F7ee0E77d615"; //Rinkeby
+// const RESOLVER = '0x4976fb03C32e5B8cfe2b6cCB31c09Ba78EBaBa41'; //mainnet
+const RESOLVER = "0xf6305c19e814d2a75429Fd637d01F7ee0E77d615"; //Rinkeby
 export default {
   name: "App",
   components: {
@@ -93,8 +97,9 @@ export default {
   data() {
     return {
       provider: null,
-      chainId: 1,
+      chainId: 4,
       account: null,
+      connectButton: null,
       input: "",
       name: "",
       price: 0,
@@ -119,9 +124,10 @@ export default {
       this.provider = new ethers.providers.Web3Provider(window.ethereum);
       const accounts = await this.provider.send("eth_requestAccounts");
       this.account = accounts[0];
+      this.connectButton = accounts[0].substring(0, 6) + "..." + accounts[0].slice(-6);
     },
     failedConnectWallet() {
-      this.account = "Error Network, switch to Mainnet";
+      this.connectButton = "Wrong Network";
     },
     switchNetwork() {
       window?.ethereum
@@ -129,7 +135,7 @@ export default {
           method: "wallet_switchEthereumChain",
           params: [
             {
-              chainId: "0x1",
+              chainId: "0x4",
             },
           ],
         })
@@ -214,12 +220,12 @@ export default {
       return ethers.utils.hexlify(ethers.utils.randomBytes(32));
     },
     async getRentPrice() {
-        const contract = new ethers.Contract(CONTRACT, ABI, this.provider);
-        this.price = (
-          ((await contract.rentPrice(this.name, this.days * 24 * 60 * 60)) *
-            1.2) /
-          1e18
-        ).toFixed(6);
+      const contract = new ethers.Contract(CONTRACT, ABI, this.provider);
+      this.price = (
+        ((await contract.rentPrice(this.name, this.days * 24 * 60 * 60)) *
+          1.2) /
+        1e18
+      ).toFixed(6);
     },
     getInput(event) {
       let input = event.target.value;
@@ -238,7 +244,7 @@ export default {
         if (isAvailable) {
           this.getRentPrice();
           this.searched = true;
-        }else{
+        } else {
           this.message = `${this.name}.eth is NOT available!`;
         }
 
