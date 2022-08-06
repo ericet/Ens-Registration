@@ -97,7 +97,7 @@ export default {
   data() {
     return {
       provider: null,
-      chainId: 4,
+      chainId: 1,
       account: null,
       connectButton: null,
       input: "",
@@ -135,7 +135,7 @@ export default {
           method: "wallet_switchEthereumChain",
           params: [
             {
-              chainId: "0x4",
+              chainId: "0x1",
             },
           ],
         })
