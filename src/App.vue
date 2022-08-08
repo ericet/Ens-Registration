@@ -86,9 +86,6 @@ import ABI from "./ABI/controller.json";
 import { ethers } from "ethers";
 import { validate } from '@ensdomains/ens-validation'
 import LoadingButton from "@/components/LoadingButton";
-const CONTRACT = "0x283Af0B28c62C092C9727F1Ee09c02CA627EB7F5";
-// const RESOLVER = '0x4976fb03C32e5B8cfe2b6cCB31c09Ba78EBaBa41'; //mainnet
-const RESOLVER = "0xf6305c19e814d2a75429Fd637d01F7ee0E77d615"; //Rinkeby
 export default {
   name: "App",
   components: {
@@ -97,7 +94,6 @@ export default {
   data() {
     return {
       provider: null,
-      chainId: 1,
       account: null,
       connectButton: null,
       input: "",
@@ -118,7 +114,7 @@ export default {
   methods: {
     async connectWallet() {
       await window.ethereum.enable();
-      if (Number(window.ethereum.chainId) !== this.chainId) {
+      if (window.ethereum.chainId !== process.env.VUE_APP_CHAIN_ID) {
         return this.failedConnectWallet();
       }
       this.provider = new ethers.providers.Web3Provider(window.ethereum);
@@ -135,7 +131,7 @@ export default {
           method: "wallet_switchEthereumChain",
           params: [
             {
-              chainId: "0x1",
+              chainId: process.env.VUE_APP_CHAIN_ID,
             },
           ],
         })
@@ -158,16 +154,16 @@ export default {
     },
     async commit() {
       this.secret = this.randomSecret();
-      const contract = new ethers.Contract(CONTRACT, ABI, this.provider);
+      const contract = new ethers.Contract(process.env.VUE_APP_CONTRACT, ABI, this.provider);
       let commitment = await contract.makeCommitmentWithConfig(
         this.name,
         this.account,
         this.secret,
-        RESOLVER,
+        process.env.VUE_APP_RESOLVER,
         this.account
       );
       const signer = await this.provider.getSigner();
-      const commitmentContract = new ethers.Contract(CONTRACT, ABI, signer);
+      const commitmentContract = new ethers.Contract(process.env.VUE_APP_CONTRACT, ABI, signer);
       commitmentContract
         .commit(commitment, {
           gasPrice: await this.provider.getGasPrice(),
@@ -190,14 +186,14 @@ export default {
     },
     async register() {
       const signer = await this.provider.getSigner();
-      const registerContract = new ethers.Contract(CONTRACT, ABI, signer);
+      const registerContract = new ethers.Contract(process.env.VUE_APP_CONTRACT, ABI, signer);
       registerContract
         .registerWithConfig(
           this.name,
           this.account,
           this.days * 24 * 60 * 60,
           this.secret,
-          RESOLVER,
+          process.env.VUE_APP_RESOLVER,
           this.account,
           {
             gasPrice: await this.provider.getGasPrice(),
@@ -220,7 +216,7 @@ export default {
       return ethers.utils.hexlify(ethers.utils.randomBytes(32));
     },
     async getRentPrice() {
-      const contract = new ethers.Contract(CONTRACT, ABI, this.provider);
+      const contract = new ethers.Contract(process.env.VUE_APP_CONTRACT, ABI, this.provider);
       this.price = (
         ((await contract.rentPrice(this.name, this.days * 24 * 60 * 60)) *
           1.2) /
@@ -239,7 +235,7 @@ export default {
       this.name = this.input.toLowerCase();
       let isValid = validate(this.name);
       if (isValid) {
-        const contract = new ethers.Contract(CONTRACT, ABI, this.provider);
+        const contract = new ethers.Contract(process.env.VUE_APP_CONTRACT, ABI, this.provider);
         let isAvailable = await contract.available(this.name);
         if (isAvailable) {
           this.getRentPrice();
